@@ -12,8 +12,8 @@ public class Vehicle : MonoBehaviour {
 	[SerializeField] float maxSpeed;
 	[SerializeField] float speed;
 
-	[SerializeField] float currentFriction = 0.5f;
-	[SerializeField] float breakFriction = 15;
+	[SerializeField] float maxMotorTorque;
+	[SerializeField] float maxSteeringAngle;
 
 	[SerializeField] bool accelerating;
 	[SerializeField] bool breaking;
@@ -52,12 +52,12 @@ public class Vehicle : MonoBehaviour {
 		return speed;
 	}
 
-	public float getCurrentFriction() {
-		return currentFriction;
+	public float getMaxMotorTorque() {
+		return maxMotorTorque;
 	}
 
-	public float getBreakFriction() {
-		return breakFriction;
+	public float getMaxSteeringAngle() {
+		return maxSteeringAngle;
 	}
 
 	public bool isAccelerating() {
@@ -85,12 +85,12 @@ public class Vehicle : MonoBehaviour {
 		maxSpeed = _maxSpeed;
 	}
 
-	public void setCurrentFriction(float _friction) {
-		currentFriction = _friction;
+	public void setMaxMotorTorque(float _max) {
+		maxMotorTorque = _max;
 	}
 
-	public void setBreakFriction(float _friction) {
-		breakFriction = _friction;
+	public void setMaxSteeringAngle(float _max) {
+		maxSteeringAngle = _max;
 	}
 
 	public void setAccelerating(bool _accelerating) {
@@ -106,6 +106,13 @@ public class Vehicle : MonoBehaviour {
 	}
 
 	//Functions
+	public void visualizeWheel(Wheel w) {
+		Quaternion rot;
+		Vector3 pos;
+		w.wheelCol.GetWorldPose ( out pos, out rot);
+		w.wheelMesh.transform.position = pos;
+		w.wheelMesh.transform.rotation = rot;
+	}
 
 	//Unity Methods
 	void Start() {
@@ -116,39 +123,46 @@ public class Vehicle : MonoBehaviour {
 		if (driver != null) {
 			driver.setVehicle(this);
 		}
+
+		//Calculate speed
+		speed = Mathf.Round(rb.velocity.magnitude);
 	}
 
 	void FixedUpdate() {
-		//Calculate speed...
-		if (accelerating) {
-			//Go faster!!!
-			float newSpeed = speed + Time.fixedDeltaTime;
-			speed = newSpeed >= maxSpeed ? maxSpeed : newSpeed;
+		float motor = maxMotorTorque * Input.GetAxis("Vertical");
+		float steering = maxSteeringAngle * Input.GetAxis("Horizontal");
+		float brakeTorque = Mathf.Abs(Input.GetAxis("Jump"));
+		if (brakeTorque > 0.001) {
+			brakeTorque = maxMotorTorque;
+			motor = 0;
 		} else {
-			if (breaking) {
-				float newSpeed = speed - (Time.fixedDeltaTime * breakFriction);
-				speed = newSpeed <= 0 ? 0 : newSpeed;
-			} else {
-				//Slow down! (but only to 0!!!)
-				float newSpeed = speed - (Time.fixedDeltaTime * currentFriction);
-				speed = newSpeed <= 0 ? 0 : newSpeed;
+			brakeTorque = 0;
+		}
+
+		foreach (Wheel w in wheels) {
+			if (w.steering) {
+				w.wheelCol.steerAngle = ((w.reverseTurn)?-1:1)*steering;
 			}
+
+			if (w.motor) {
+				w.wheelCol.motorTorque = motor;
+			}
+
+			w.wheelCol.brakeTorque = brakeTorque;
+
+			visualizeWheel(w);
 		}
-
-
-		Vector3 newRot = new Vector3(speed, 0, 0);
-
-		foreach (Wheel w in getWheels()) {
-			w.wheel.transform.Rotate(newRot, Space.Self);
-		}
-		transform.Translate(Vector3.forward * Time.fixedDeltaTime * speed, Space.Self);
 	}
 }
 
 [System.Serializable]
 public class Wheel {
-	public GameObject wheel;
+	public GameObject wheelMesh;
+	public WheelCollider wheelCol;
 	public WheelType type;
+	public bool steering;
+	public bool motor;
+	public bool reverseTurn;
 }
 
 [System.Serializable]
