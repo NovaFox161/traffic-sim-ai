@@ -5,6 +5,7 @@ using System.Collections.Generic;
 public class Vehicle : MonoBehaviour {
 	[SerializeField] CarType carType;
 	[SerializeField] List<Wheel> wheels = new List<Wheel>();
+	[SerializeField] List<CameraView> cameras = new List<CameraView>();
 
 	[Range(1, 4)]
 	[SerializeField] int seats = 1;
@@ -37,6 +38,19 @@ public class Vehicle : MonoBehaviour {
 		foreach (Wheel w in wheels) {
 			if (w.type == type) {
 				return w;
+			}
+		}
+		return null;
+	}
+
+	public List<CameraView> getCameras() {
+		return cameras;
+	}
+
+	public CameraView getCamera(CameraType type) {
+		foreach (CameraView c in cameras) {
+			if (c.type == type) {
+				return c;
 			}
 		}
 		return null;
@@ -117,6 +131,10 @@ public class Vehicle : MonoBehaviour {
 		if (driver != null) {
 			driver.setVehicle(this);
 		}
+
+		foreach (CameraView c in cameras) {
+			c.cam.gameObject.SetActive(false);
+		}
 	}
 
 	void Start() {
@@ -177,6 +195,12 @@ public class Wheel {
 }
 
 [System.Serializable]
+public class CameraView {
+	public Camera cam;
+	public CameraType type;
+}
+
+[System.Serializable]
 public enum CarType {
 	Sedan, Van, Truck, Bus, Motorcycle
 }
@@ -184,4 +208,8 @@ public enum CarType {
 [System.Serializable]
 public enum WheelType {
 	Front_left, Front_right, Back_left, Back_right
+}
+
+public enum CameraType {
+	First_Person, Behind, Hood
 }
