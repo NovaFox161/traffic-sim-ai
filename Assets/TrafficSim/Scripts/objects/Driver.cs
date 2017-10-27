@@ -14,17 +14,22 @@ public class Driver : MonoBehaviour {
 	}
 
 	//Functions
-	public void applyBreak() {
-		vehicle.setBreaking(true);
-		vehicle.setAccelerating(false);
+	public void setRawInputs(float motor, float steering, float brake) {
+		vehicle.setMotorRaw(motor);
+		vehicle.setSteeringRaw(steering);
+		vehicle.setBrakeTorqueRaw(brake);
 	}
 
-	public void accelerate() {
-		vehicle.setBreaking(false);
-		vehicle.setAccelerating(true);
+	//Unity methods
+	void Awake() {
+		if (vehicle != null) {
+			vehicle.setDriver(this);
+		}
 	}
 
-	public void stopAccelerating() {
-		vehicle.setAccelerating(false);
+	void LateUpdate() {
+		if (vehicle != null) {
+			vehicle.setDriver(this);
+		}
 	}
 }

@@ -11,12 +11,14 @@ public class Vehicle : MonoBehaviour {
 
 	[SerializeField] float maxSpeed;
 	[SerializeField] float speed;
+	[SerializeField] float acceleration;
 
 	[SerializeField] float maxMotorTorque;
 	[SerializeField] float maxSteeringAngle;
 
-	[SerializeField] bool accelerating;
-	[SerializeField] bool breaking;
+	[SerializeField] float motorRaw;
+	[SerializeField] float steeringRaw;
+	[SerializeField] float brakeTorqueRaw;
 
 	[SerializeField] Driver driver;
 
@@ -60,18 +62,10 @@ public class Vehicle : MonoBehaviour {
 		return maxSteeringAngle;
 	}
 
-	public bool isAccelerating() {
-		return accelerating;
-	}
-
-	public bool isBreaking() {
-		return breaking;
-	}
-
 	public Driver getDriver() {
 		return driver;
 	}
-		
+
 	//Setters
 	public void setCarType(CarType _type) {
 		carType = _type;
@@ -93,12 +87,16 @@ public class Vehicle : MonoBehaviour {
 		maxSteeringAngle = _max;
 	}
 
-	public void setAccelerating(bool _accelerating) {
-		accelerating = _accelerating;
+	public void setMotorRaw(float _raw) {
+		motorRaw = _raw;
 	}
 
-	public void setBreaking(bool _breaking) {
-		breaking = _breaking;
+	public void setSteeringRaw(float _raw) {
+		steeringRaw = _raw;
+	}
+
+	public void setBrakeTorqueRaw(float _raw) {
+		brakeTorqueRaw = _raw;
 	}
 
 	public void setDriver(Driver _driver) {
@@ -115,23 +113,30 @@ public class Vehicle : MonoBehaviour {
 	}
 
 	//Unity Methods
+	void Awake() {
+		if (driver != null) {
+			driver.setVehicle(this);
+		}
+	}
+
 	void Start() {
 		rb = GetComponent<Rigidbody>();
 	}
 
 	void Update() {
-		if (driver != null) {
-			driver.setVehicle(this);
-		}
+		//Calculate acceleration and speed
+		float currentSpeed = Mathf.Round(rb.velocity.magnitude * 3.6f * 100) / 100;
 
-		//Calculate speed
-		speed = Mathf.Round(rb.velocity.magnitude);
+		acceleration = Mathf.Round((currentSpeed - speed) / Time.deltaTime / 3.6f * 100) / 100;
+
+		speed = currentSpeed;
 	}
 
 	void FixedUpdate() {
-		float motor = maxMotorTorque * Input.GetAxis("Vertical");
-		float steering = maxSteeringAngle * Input.GetAxis("Horizontal");
-		float brakeTorque = Mathf.Abs(Input.GetAxis("Jump"));
+		float motor = maxMotorTorque * motorRaw;
+		float steering = maxSteeringAngle * steeringRaw;
+		float brakeTorque = brakeTorqueRaw;
+
 		if (brakeTorque > 0.001) {
 			brakeTorque = maxMotorTorque;
 			motor = 0;
@@ -145,12 +150,18 @@ public class Vehicle : MonoBehaviour {
 			}
 
 			if (w.motor) {
-				w.wheelCol.motorTorque = motor;
+				w.wheelCol.motorTorque = speed <= maxSpeed ? motor : 0;
 			}
 
 			w.wheelCol.brakeTorque = brakeTorque;
 
 			visualizeWheel(w);
+		}
+	}
+
+	void LateUpdate() {
+		if (driver != null) {
+			driver.setVehicle(this);
 		}
 	}
 }
