@@ -68,6 +68,10 @@ public class Vehicle : MonoBehaviour {
 		return speed;
 	}
 
+	public float getAcceleration() {
+		return acceleration;
+	}
+
 	public float getMaxMotorTorque() {
 		return maxMotorTorque;
 	}
