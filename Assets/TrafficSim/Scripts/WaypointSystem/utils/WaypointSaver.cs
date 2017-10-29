@@ -12,7 +12,7 @@ using UnityEditor;
 public class WaypointSaver : MonoBehaviour {
 
 
-	public void saveWaypoints(List<Waypoint> waypoints) {
+	public static void saveWaypoints(List<Waypoint> waypoints) {
 		Scene scene = SceneManager.GetActiveScene();
 
 		string path = "TrafficSim/Resources/Data/Waypoints/" + scene.name + "_waypoints.txt";
@@ -21,7 +21,6 @@ public class WaypointSaver : MonoBehaviour {
 		path = "Assets/TrafficSim/Resources/Data/Waypoints/" + scene.name + "_waypoints.txt";
 		#endif
 
-		//TODO: Handle saving the correct stuffs...
 		string toSave = "";
 
 		foreach (Waypoint w in waypoints) {
@@ -39,7 +38,7 @@ public class WaypointSaver : MonoBehaviour {
 		#endif
 	}
 
-	public List<Waypoint> loadWaypoints() {
+	public static List<Waypoint> loadWaypoints() {
 		Scene scene = SceneManager.GetActiveScene();
 
 		string path = "TrafficSim/Resources/Data/Waypoints/" + scene.name + "_waypoints.txt";
@@ -47,27 +46,31 @@ public class WaypointSaver : MonoBehaviour {
 		#if UNITY_STANDALONE
 		path = "Assets/TrafficSim/Resources/Data/Waypoints/" + scene.name + "_waypoints.txt";
 		#endif
-		string waypointsString = AssetDatabase.LoadAssetAtPath<TextAsset>(path).text;
-
-		//TODO: Handle loading data to correct stuff...
-		string[] data = waypointsString.Split(new [] {"|||"}, StringSplitOptions.None);
 
 		List<Waypoint> waypoints = new List<Waypoint>();
+		try {
+			string waypointsString = AssetDatabase.LoadAssetAtPath<TextAsset>(path).text;
 
-		foreach (string w in data) {
-			try {
-				string[] wd = w.Split(new [] {"---"}, StringSplitOptions.None);
-				Waypoint point = new Waypoint();
-				point.setId(wd[0]);
+			string[] data = waypointsString.Split(new [] {"|||"}, StringSplitOptions.None);
 
-				string[] loc = wd[1].Split(new [] {"***"}, StringSplitOptions.None);
+			foreach (string w in data) {
+				try {
+					string[] wd = w.Split(new [] {"---"}, StringSplitOptions.None);
+					Waypoint point = new Waypoint();
+					point.setId(wd[0]);
 
-				point.setLocation(new Vector3(float.Parse(loc[0]), float.Parse(loc[1]), float.Parse(loc[2])));
+					string[] loc = wd[1].Split(new [] {"***"}, StringSplitOptions.None);
 
-				waypoints.Add(point);
-			} catch (IndexOutOfRangeException e) {
-				Debug.Log("Invalid Waypoint Data: " + e.Message);
+					point.setLocation(new Vector3(float.Parse(loc[0]), float.Parse(loc[1]), float.Parse(loc[2])));
+
+					waypoints.Add(point);
+				} catch (IndexOutOfRangeException e) {
+					//Debug.Log("Invalid Waypoint Data: " + e.Message);
+					e.ToString();
+				}
 			}
+		} catch (NullReferenceException e) {
+			e.ToString();
 		}
 		return waypoints;
 	}

@@ -5,8 +5,6 @@ using System.Collections.Generic;
 public class WaypointManager : MonoBehaviour {
 	static WaypointManager instance;
 
-	WaypointSaver saver;
-
 	[SerializeField] List<Waypoint> waypoints = new List<Waypoint>();
 
 	public static WaypointManager getManager() {
@@ -22,8 +20,12 @@ public class WaypointManager : MonoBehaviour {
 		}
 
 		instance = this;
-		saver = GetComponent<WaypointSaver>();
 
-		saver.loadWaypoints();
+		waypoints = WaypointSaver.loadWaypoints();
+	}
+
+	//Getters
+	public List<Waypoint> getWaypoints() {
+		return waypoints;
 	}
 }
