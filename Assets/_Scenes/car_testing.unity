@@ -1324,6 +1324,7 @@ GameObject:
   - component: {fileID: 1918708552}
   - component: {fileID: 1918708553}
   - component: {fileID: 1918708551}
+  - component: {fileID: 1918708554}
   m_Layer: 0
   m_Name: WaypointManager
   m_TagString: Untagged
@@ -1367,3 +1368,16 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   waypoints: []
+--- !u!114 &1918708554
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1918708550}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 34bdc839d8e8b452c88742e2d0271ad2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debug: 1
+  showAllPoints: 1

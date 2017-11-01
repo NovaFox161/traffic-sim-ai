@@ -55,15 +55,7 @@ public class WaypointSaver : MonoBehaviour {
 
 			foreach (string w in data) {
 				try {
-					string[] wd = w.Split(new [] {"---"}, StringSplitOptions.None);
-					Waypoint point = new Waypoint();
-					point.setId(wd[0]);
-
-					string[] loc = wd[1].Split(new [] {"***"}, StringSplitOptions.None);
-
-					point.setLocation(new Vector3(float.Parse(loc[0]), float.Parse(loc[1]), float.Parse(loc[2])));
-
-					waypoints.Add(point);
+					waypoints.Add(new Waypoint().fromString(w));
 				} catch (IndexOutOfRangeException e) {
 					//Debug.Log("Invalid Waypoint Data: " + e.Message);
 					e.ToString();
