@@ -1379,5 +1379,5 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 34bdc839d8e8b452c88742e2d0271ad2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  debug: 1
-  showAllPoints: 1
+  debug: 0
+  showAllPoints: 0
